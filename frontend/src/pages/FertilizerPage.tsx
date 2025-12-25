@@ -6,8 +6,7 @@ import { auth } from '../firebase/firebaseConfig';
 import { saveFertilizerResult } from '../firebase/firestoreService';
 
 // CHANGE THIS TO MATCH YOUR API PORT!
-const FERTILIZER_API_PORT = 7000;
-const FERTILIZER_API_BASE = `http://localhost:${FERTILIZER_API_PORT}`;
+const FERTILIZER_API_BASE = import.meta.env.VITE_API_URL || "http://localhost:7000";
 
 const FertilizerPage: React.FC = () => {
   const [user] = useAuthState(auth);

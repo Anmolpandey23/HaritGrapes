@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/firebaseConfig';
 
-const CLUSTER_API_URL = "http://localhost:7000/predict-cluster";
+const CLUSTER_API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:7000"}/predict-cluster`;
+
 
 interface PersistedImage {
   name: string;

@@ -5,7 +5,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { saveYieldResult } from '../firebase/firestoreService';
 
-const YIELD_API_URL = "http://localhost:7000/predict-yield";
+const YIELD_API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:7000"}/predict-yield`;
 
 const defaultFeatureValues = [0, 0, 0, 0, 0, 0, 0];
 

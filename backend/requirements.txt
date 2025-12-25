@@ -5,3 +5,4 @@ onnxruntime
 xgboost
 joblib
 pillow
+scikit-learn

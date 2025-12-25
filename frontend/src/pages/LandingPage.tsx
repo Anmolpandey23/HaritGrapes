@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 // Use .mp4 for best compatibility, unless you are SURE about .mov
-const VIDEO_SRC = '/vineyard.mov';
+const VIDEO_SRC = '/vineyard.mp4';
 
 export default function LandingPage() {
   const navigate = useNavigate();

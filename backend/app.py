@@ -10,8 +10,11 @@ from PIL import Image
 app = Flask(__name__)
 CORS(app)
 
+# Get the directory where app.py is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # -------- CLUSTER MODEL --------
-CLUSTER_MODEL_PATH = "/Users/anmoldineshpandey/Documents/All Projects/HaritGrapes/backend/functions/src/cluster/models/grape_cluster_final.onnx"
+CLUSTER_MODEL_PATH = os.path.join(BASE_DIR, "functions/src/cluster/models/grape_cluster_final.onnx")
 if not os.path.exists(CLUSTER_MODEL_PATH):
     raise FileNotFoundError(f"ONNX model not found at {CLUSTER_MODEL_PATH}")
 print(f"Loading ONNX cluster model from: {CLUSTER_MODEL_PATH}")
@@ -97,7 +100,7 @@ def predict_cluster():
         return jsonify({'error': str(e)}), 500
 
 # -------- YIELD MODEL --------
-YIELD_MODEL_PATH = "/Users/anmoldineshpandey/Documents/All Projects/HaritGrapes/backend/functions/src/yield/model/niphad_yield_2025_model_WEB.json"
+YIELD_MODEL_PATH = os.path.join(BASE_DIR, "functions/src/yield/model/niphad_yield_2025_model_WEB.json")
 yield_booster = xgb.Booster()
 yield_booster.load_model(YIELD_MODEL_PATH)
 
@@ -131,7 +134,7 @@ def predict_yield():
         return jsonify({'error': str(e)}), 500
 
 # -------- FERTILIZER MODEL --------
-FERT_MODEL_PATH = "/Users/anmoldineshpandey/Documents/All Projects/HaritGrapes/backend/functions/src/fertilizer/model/recommendation_tree.joblib"
+FERT_MODEL_PATH = os.path.join(BASE_DIR, "functions/src/fertilizer/model/recommendation_tree.joblib")
 fert_model = joblib.load(FERT_MODEL_PATH)
 
 disease_mapping = {

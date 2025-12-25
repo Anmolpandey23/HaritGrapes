@@ -1,0 +1,23 @@
+{
+    "welcome": "स्वागत है, {{name}}!",
+    "dashboard": "डैशबोर्ड",
+    "diseaseDetection": "रोग डिटेक्शन",
+    "clusterCount": "क्लस्टर गिनती",
+    "yield": "पैदावार",
+    "fertilizer": "उर्वरक",
+    "settings": "सेटिंग्स",
+    "logout": "लॉग आउट",
+    "grower": "अंगूर उत्पादक",
+    "fullname": "पूरा नाम",
+  "phone": "फ़ोन",
+  "language": "भाषा",
+  "email": "ईमेल",
+  "save": "सहेजें",
+  "cancel": "रद्द करें",
+  "savechanges": "परिवर्तन सहेजें",
+  "continue": "जारी रखें",
+  "saving": "सहेजा जा रहा है...",
+  "pagetitle_dashboard": "डैशबोर्ड",
+  "pagetitle_settings": "सेटिंग्स"
+  }
+  

@@ -1,6 +1,18 @@
 {
+  "name": "haritgrapes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Precision Viticulture Intelligence Platform for Indian Vineyards",
+  "scripts": {
+    "dev": "npm run --prefix frontend dev",
+    "frontend": "npm run --prefix frontend frontend",
+    "backend": "npm run --prefix frontend backend",
+    "build": "npm run --prefix frontend build",
+    "preview": "npm run --prefix frontend preview"
+  },
   "dependencies": {
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2"
   }
 }
+

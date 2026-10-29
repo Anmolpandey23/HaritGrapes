@@ -33,3 +33,10 @@ Thumbs.db
 
 # Scratch directory
 scratch/
+
+# Large ML Weights & Model Binaries
+*.onnx
+*.pt
+*.pth
+*.tflite
+

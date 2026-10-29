@@ -1,269 +1,418 @@
-#  HaritGrapes — AI for Smart Vineyards
+# 🍇 HaritGrapes — AI-Powered Vineyard Monitoring & Yield Estimation
 
-HaritGrapes is a full-stack, AI-powered platform that helps grape growers monitor vineyard health, count fruit clusters, predict yield, and get fertilizer/disease treatment recommendations — all from a phone camera. It's built for the Maharashtra grape belt (the yield model is trained on Niphad, Nashik data) with a multilingual UI in **English, Hindi, and Marathi**.
+**HaritGrapes** is a full-stack agricultural technology application designed to help grape growers monitor vineyard conditions, detect grape clusters in images, estimate crop yield, and access disease and fertilizer recommendations.
 
-> ⚠️ **Project status:** Actively developed / demo stage. Some Cloud Functions (disease detection, yield, fertilizer) currently return **mock/simulated predictions** for demo purposes, while the standalone Flask backend serves **real trained models** (ONNX cluster-counting model + XGBoost yield model + a fertilizer decision tree). See [Architecture](#-architecture) below for exactly what's real vs. mocked.
+Built with React, TypeScript, Python, computer vision, and machine learning, the platform combines a web-based interface with trained ML models to explore how AI can support vineyard management.
+
+The project focuses on grape cultivation in Maharashtra, India, with the yield prediction model based on data associated with the Niphad region of Nashik.
+
+> **Project status:** Active development / demonstration stage. The standalone Flask backend performs inference using the available trained models. Some Firebase Cloud Functions still use simulated responses. Model accuracy and agricultural recommendations require further validation before production use.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
 | Feature | Description |
 |---|---|
-| 🍇 **Cluster Counting** | Upload/scan a vineyard image; a YOLO-style object-detection model (exported to ONNX) counts grape clusters in the frame. |
-| 🩺 **Disease Detection** | Scan a leaf/plant photo to flag conditions like Downy Mildew, Powdery Mildew, Bacterial Rot, and Anthracnose. |
-| 📈 **Yield Prediction** | An XGBoost regression model estimates expected yield (kg) from weather (temperature, humidity, rainfall, wind, UV) plus cluster count/weight. |
-| 🌱 **Fertilizer Recommendation** | Given a detected disease (or a healthy reading), get a dosage, advice, and application schedule using a trained decision-tree classifier. |
-| 📊 **Dashboard** | At-a-glance stats: total scans, healthy vs. diseased ratio, average yield, and history. |
-| 📄 **PDF Reports** | Generate and download a summary report of scan history using `jsPDF` / `jspdf-autotable`. |
-| 🔐 **Authentication & Profiles** | Firebase Authentication with per-user profile documents in Firestore. |
-| 🌐 **Multilingual UI** | Full i18n support for English, Hindi (हिंदी), and Marathi (मराठी) via `i18next`. |
-| 📚 **Learning Hub** | In-app educational videos/resources for growers. |
-| 📷 **Camera Scanner** | In-browser camera capture component for on-the-spot scanning (no need to leave the app). |
+| 🍇 **Grape Cluster Counting** | Upload a vineyard image and use a YOLO-style object-detection model exported to ONNX to estimate the number of visible grape clusters. |
+| 📈 **Yield Prediction** | Estimate vineyard yield using weather conditions and crop parameters through a trained XGBoost regression model. |
+| 🩺 **Disease Detection** | Access a disease-detection workflow designed to identify conditions such as Downy Mildew, Powdery Mildew, Bacterial Rot, and Anthracnose. |
+| 🌱 **Fertilizer Recommendations** | Obtain fertilizer-related guidance based on disease classification or plant health status. |
+| 📊 **Dashboard** | View available vineyard statistics, prediction summaries, and scan history. |
+| 📄 **PDF Reports** | Generate downloadable reports using JavaScript PDF-generation libraries. |
+| 🔐 **Authentication** | Integrate Firebase Authentication with user-specific profile and application data. |
+| 📷 **Camera Scanner** | Capture images directly through a compatible browser camera for vineyard analysis. |
+| 🌿 **Agricultural Focus** | Explore ML-assisted vineyard monitoring and yield estimation for grape cultivation. |
+
+**Note:** Feature availability depends on which backend implementation the frontend uses. Some features currently use demonstration responses rather than production-grade inference.
 
 ---
 
-## 🏗 Architecture
+## 🏗️ System Architecture
 
-HaritGrapes is split into two independently runnable backends and one frontend:
+HaritGrapes consists of a React frontend, a Python Flask inference service, and Firebase services, including Cloud Functions.
 
-```
+```text
 HaritGrapes/
-├── frontend/                  # React + TypeScript + Vite SPA
+│
+├── frontend/
 │   └── src/
-│       ├── pages/             # Route-level pages (Dashboard, Cluster, Yield, Disease, Fertilizer, Auth, ...)
-│       ├── components/        # Header, Footer, CameraScanner, ReportDownloader, YieldChart, ...
-│       ├── firebase/          # Firebase app + Firestore service helpers
-│       ├── locales/           # en.json / hi.json / mr.json translation files
-│       └── routes/            # AppRouter with protected/public routes
+│       ├── pages/              # Application pages
+│       ├── components/         # Reusable UI components
+│       ├── firebase/           # Firebase configuration and helpers
+│       └── routes/             # Application routing
 │
-├── backend/                   # Two backend implementations, both used by the app
-│   ├── app.py                 # Flask microservice — REAL model inference (ONNX + XGBoost + joblib)
-│   ├── requirements.txt
-│   ├── firestore.rules        # Per-user data isolation rules
-│   ├── firestore.indexes.json
-│   ├── storage.rules
-│   └── functions/             # Firebase Cloud Functions (Node.js) — deployed serverless API
+├── backend/
+│   ├── app.py                  # Flask inference API
+│   ├── requirements.txt        # Python dependencies
+│   ├── firestore.rules         # Firestore security rules
+│   ├── firestore.indexes.json  # Firestore indexes
+│   ├── storage.rules           # Firebase Storage rules
+│   │
+│   └── functions/
 │       └── src/
-│           ├── auth/          # createUserProfile / updateUserProfile (Firestore writes)
-│           ├── cluster/       # predictCluster.js — real ONNX inference via onnxruntime-node
-│           ├── disease/       # predictDisease.js — currently mocked/randomized response
-│           ├── yield/         # predictYield.js — currently mocked/randomized response
-│           └── fertilizer/    # recommendFertilizer.js — currently a mock lookup table
+│           ├── auth/           # User profile functions
+│           ├── cluster/        # ONNX cluster detection
+│           ├── disease/        # Disease-detection function
+│           ├── yield/          # Yield prediction function
+│           └── fertilizer/     # Fertilizer recommendation function
 │
-├── firebase.json              # Hosting config, serves frontend/dist
-└── package.json                # Root-level deps (jsPDF etc. shared with report generation)
+├── firebase.json
+├── package.json
+└── README.md
 ```
 
-### Two parallel APIs
+### Backend implementations
 
-The project currently ships **two backend surfaces that serve overlapping purposes**:
+#### 1. Flask inference service
 
-1. **Flask service (`backend/app.py`)** — runs real inference:
-   - `POST /predict-cluster` — takes an uploaded image, runs `grape_cluster_final.onnx` (a YOLO-style detector) through `onnxruntime`, applies NMS, and returns a cluster count.
-   - `POST /predict-yield` — takes a 7-feature vector (`temperature_C`, `humidity_%`, `rainfall_mm`, `wind_speed_mps`, `uv_index`, `cluster_count_per_acre`, `avg_cluster_weight_g`) and returns a predicted yield via a trained XGBoost booster (`niphad_yield_2025_model_WEB.json`).
-   - `POST /recommend-fertilizer` — takes a disease name (or "healthy") and returns dosage/advice/application guidance from a trained `joblib` decision tree plus a curated treatment lookup table.
-   - `GET /health` — basic health check.
+The Flask service provides endpoints for model inference using the available trained artifacts.
 
-2. **Firebase Cloud Functions (`backend/functions`)** — the deployed serverless API the hosted frontend talks to:
-   - `predictCluster` — real ONNX inference (Node port of the same idea as the Flask route, using `onnxruntime-node` + `sharp` for image preprocessing).
-   - `predictDisease`, `predictYield`, `recommendFertilizer` — currently **mocked**: they return randomized/simulated results as placeholders until production models are wired in (explicitly noted in `backend/README.md`).
-   - `createUserProfile`, `updateUserProfile` — real callable functions that write to Firestore under `users/{uid}/profile/info`.
+| Endpoint | Purpose | Implementation |
+|---|---|---|
+| `GET /health` | Check backend availability | Health-check endpoint |
+| `POST /predict-cluster` | Count visible grape clusters | ONNX object-detection model |
+| `POST /predict-yield` | Estimate crop yield | XGBoost regression model |
+| `POST /recommend-fertilizer` | Generate fertilizer guidance | Decision-tree model and recommendation logic |
 
-All Firestore access is scoped so a user can only read/write their own `users/{uid}` subtree (`profile`, `scans`, `yield`, `fertilizer`); a separate `support_contacts` collection allows public write-only submissions (e.g. a contact/support form).
+**Cluster detection**
+
+The service processes uploaded images, prepares them for model inference, runs the ONNX model, and applies bounding-box filtering and non-maximum suppression to determine the final detection count.
+
+The implementation uses the original cluster model:
+
+`grape_cluster_final.onnx`
+
+**Yield estimation**
+
+The yield endpoint uses the trained XGBoost model:
+
+`niphad_yield_2025_model_WEB.json`
+
+The model accepts seven features:
+
+- Temperature in °C
+- Relative humidity in %
+- Rainfall in mm
+- Wind speed in m/s
+- UV index
+- Cluster count per acre
+- Average cluster weight in grams
+
+The model returns a yield estimate in the unit expected by the application. The target definition and prediction accuracy should be verified against the original training artifacts and recorded harvest data.
+
+**Fertilizer recommendations**
+
+The Flask implementation uses the available joblib decision-tree artifact and recommendation logic to generate fertilizer-related guidance.
+
+The reliability of these recommendations depends on the training data, decision logic, and agricultural validation.
+
+#### 2. Firebase Cloud Functions
+
+Firebase Cloud Functions provide a serverless backend for supported application workflows.
+
+| Function | Current implementation |
+|---|---|
+| Cluster prediction | ONNX inference implementation |
+| Disease prediction | Simulated/demo response |
+| Yield prediction | Simulated/demo response |
+| Fertilizer recommendation | Mock recommendation lookup |
+| User profile creation | Firebase-backed operation |
+| User profile updates | Firebase-backed operation |
+
+The Firebase implementation is separate from the Flask service. Consequently, the availability of a trained model in Flask does not automatically mean that the corresponding deployed Cloud Function uses that model.
+
+The disease, yield, and fertilizer Cloud Functions require further integration before they can be treated as production ML inference endpoints.
 
 ---
 
-## 🧰 Tech Stack
+## 🧰 Technology Stack
 
-**Frontend**
-- React 18 + TypeScript, built with Vite
-- Tailwind CSS
-- `react-router-dom` for routing (with protected/public route guards)
-- `react-i18next` / `i18next` for localization
-- `firebase` + `react-firebase-hooks` for auth state
-- `recharts` for yield charts, `framer-motion` for animation
-- `jsPDF` + `jspdf-autotable` for PDF report generation
-- `@tensorflow/tfjs` (client-side ML tooling)
-- `react-hot-toast`, `react-icons`
+### Frontend
 
-**Backend (Flask microservice)**
-- Flask + Flask-CORS
-- `onnxruntime` for the cluster-detection model
-- `xgboost` for the yield model
-- `scikit-learn` / `joblib` for the fertilizer decision tree
-- `Pillow` (PIL) + `numpy` for image preprocessing
+- **React 18** — UI development
+- **TypeScript** — Type-safe application code
+- **Vite** — Development server and build tooling
+- **Tailwind CSS** — Styling
+- **React Router** — Client-side routing
+- **Recharts** — Data visualization
+- **Framer Motion** — UI animations
+- **Firebase SDK** — Authentication and Firebase integration
+- **jsPDF** and **jspdf-autotable** — PDF report generation
+- **React Hot Toast** — Notifications
 
-**Backend (Firebase Cloud Functions)**
-- Node.js, `firebase-functions` / `firebase-admin`
-- `onnxruntime-node` + `sharp` for server-side image inference
-- `axios` for downloading images from Firebase Storage URLs
-- `uuid` for scan/record IDs
+### Machine Learning & Backend
 
-**Infrastructure**
-- Firebase Hosting (serves `frontend/dist`)
+- **Python**
+- **Flask**
+- **NumPy**
+- **Pillow**
+- **ONNX Runtime**
+- **XGBoost**
+- **scikit-learn**
+- **joblib**
+- **OpenCV**, where used by the relevant inference implementation
+
+### Cloud Infrastructure
+
 - Firebase Authentication
-- Cloud Firestore (per-user data) + Firestore security rules
-- Firebase Storage (rules included for scan image uploads)
+- Cloud Firestore
+- Firebase Storage
+- Firebase Cloud Functions
+- Firebase Hosting
 
 ---
 
-## ⚙️ Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS) and npm
-- [Python 3.9+](https://www.python.org/) for the Flask inference service
-- A [Firebase](https://firebase.google.com/) project (for Auth, Firestore, Storage, Hosting, and Cloud Functions)
-- `firebase-tools` CLI: `npm install -g firebase-tools`
+Install the following tools before setting up the project:
+
+- Node.js and npm
+- Python 3.9 or a compatible version supported by the project dependencies
+- Git
+- A Firebase project, if using Firebase-backed functionality
+- Firebase CLI, if deploying Firebase resources
 
 ### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Anmolpandey23/HaritGrapes.git
+
 cd HaritGrapes
 ```
 
-### 2. Configure Firebase
-
-Create a Firebase project and add your web app config to:
-
-```
-frontend/src/firebase/firebaseConfig.ts
-```
-
-Enable **Authentication** (Email/Password and/or your preferred providers), **Firestore**, and **Storage** in the Firebase console.
-
-### 3. Run the frontend + local inference API together
+### 2. Install frontend dependencies
 
 ```bash
 cd frontend
+
 npm install
-npm run dev
 ```
 
-`npm run dev` uses `concurrently` to start both:
-- `npm run frontend` → Vite dev server (the React app)
-- `npm run backend` → `cd ../backend && python app.py` (the Flask inference API on port `7000`)
+### 3. Configure Firebase
 
-Set `VITE_API_URL` in a `.env` file inside `frontend/` if your Flask API isn't running on `http://localhost:7000`.
+If you want to use Firebase-backed functionality, configure your Firebase web application credentials in the appropriate frontend configuration.
 
-### 4. Run the Flask API standalone (optional)
+Verify that the required Firebase services are enabled:
+
+- Authentication
+- Cloud Firestore
+- Storage
+
+Keep private credentials and service-account keys out of version control.
+
+### 4. Configure the Python backend
+
+Open a new terminal and navigate to the backend:
 
 ```bash
-cd backend
+cd HaritGrapes/backend
+```
+
+Create and activate a virtual environment.
+
+**macOS/Linux:**
+
+```bash
+python3 -m venv .venv
+
+source .venv/bin/activate
+```
+
+Install the Python dependencies:
+
+```bash
 pip install -r requirements.txt
+```
+
+Ensure the required model files exist at the paths expected by `backend/app.py`:
+
+```text
+backend/functions/src/cluster/models/grape_cluster_final.onnx
+
+backend/functions/src/yield/model/niphad_yield_2025_model_WEB.json
+
+backend/functions/src/fertilizer/model/recommendation_tree.joblib
+```
+
+The filenames and paths above must match the actual files in your local repository.
+
+### 5. Start the Flask backend
+
+From the `backend` directory:
+
+```bash
 python app.py
 ```
 
-The service listens on port `7000` by default (override with the `PORT` env var) and exposes `/predict-cluster`, `/predict-yield`, `/recommend-fertilizer`, and `/health`.
+The service is configured to listen on port `7000` by default, subject to the application's configuration.
 
-> Note: `app.py` expects trained model artifacts at `backend/functions/src/cluster/models/grape_cluster_final.onnx`, `backend/functions/src/yield/model/niphad_yield_2025_model_WEB.json`, and `backend/functions/src/fertilizer/model/recommendation_tree.joblib`. Make sure these are present before starting the service.
-
-### 5. Deploy Cloud Functions / Firestore / Storage rules
+Check the health endpoint:
 
 ```bash
-cd backend
-firebase login
-firebase init            # if not already linked to your Firebase project
-cd functions && npm install
-cd ..
-firebase deploy --only functions,firestore,storage
+curl http://localhost:7000/health
 ```
 
-### 6. Build & deploy the frontend to Firebase Hosting
+### 6. Start the frontend
+
+Open another terminal:
 
 ```bash
-cd frontend
-npm run build             # outputs to frontend/dist
-cd ..
-firebase deploy --only hosting
+cd HaritGrapes/frontend
+
+npm run dev
 ```
+
+If the frontend supports a configurable API URL, create the appropriate environment file and set:
+
+```env
+VITE_API_URL=http://localhost:7000
+```
+
+Restart the Vite development server after changing environment variables.
+
+**Important:** Confirm which backend each frontend feature actually calls. A frontend connected to Firebase Cloud Functions may receive simulated predictions even when the local Flask backend contains a trained model.
 
 ---
 
-## 🧪 Available Scripts
+## 📊 Machine Learning Models
 
-**Frontend (`frontend/package.json`):**
+### Cluster detection
 
-```bash
-npm run dev        # run Vite dev server + Flask API concurrently
-npm run frontend    # Vite dev server only
-npm run backend     # Flask API only
-npm run build       # production build → frontend/dist
-npm run preview     # preview the production build
-npm run lint        # ESLint over src/**.ts(x)
-```
+The cluster-counting workflow uses an object-detection model exported to ONNX format.
 
-**Cloud Functions (`backend/functions/package.json`):**
+The inference pipeline includes:
 
-```bash
-npm run serve       # firebase emulators:start --only functions
-npm run deploy       # firebase deploy --only functions
-```
+1. Image upload or capture.
+2. Image preprocessing.
+3. ONNX model inference.
+4. Bounding-box decoding.
+5. Confidence filtering.
+6. Non-maximum suppression.
+7. Returning the final detection count.
+
+The output represents the number of detections retained by the model. It should not automatically be interpreted as a perfectly accurate count of every individual grape bunch, particularly when bunches overlap or touch.
+
+### Yield prediction
+
+The yield-estimation workflow uses an XGBoost regression model with weather and vineyard parameters.
+
+The model produces an estimate based on patterns learned during training. Its reliability depends on the quality of the training data, the consistency of feature definitions and units, and how closely the prediction inputs match the data on which the model was trained.
+
+Predictions should be evaluated against actual harvest measurements before being used for agricultural decisions.
+
+### Disease detection and fertilizer recommendations
+
+The application includes disease-detection and fertilizer-recommendation workflows.
+
+However, the current Firebase Cloud Functions for these features use demonstration implementations. Their presence in the interface should not be interpreted as proof of production-grade disease classification or validated fertilizer prescriptions.
 
 ---
 
-## 🔐 Data Model & Security
+## 🔐 Data & Security
 
-Firestore is structured per user:
+HaritGrapes uses Firebase services to support authentication and user-specific data.
 
-```
+The intended Firestore data structure includes:
+
+```text
 users/{uid}/
-├── profile/info        # name, email, photoURL, language
-├── scans/{scanId}       # disease-detection & cluster-count scan history
-├── yield/{yieldId}      # yield prediction records
-└── fertilizer/{fertilizerId}  # fertilizer recommendation records
+├── profile/info
+├── scans/{scanId}
+├── yield/{yieldId}
+└── fertilizer/{fertilizerId}
 
-support_contacts/{contactId}   # public write-only support/contact form submissions
+support_contacts/{contactId}
 ```
 
-`firestore.rules` enforces that a user may only read/write their own `users/{uid}` subtree; `support_contacts` allows anonymous creation but no read/update/delete access from clients.
+The repository includes Firestore and Storage security rules.
+
+Before deployment, review the rules against the actual application workflows and verify that users cannot access another user's private records. Public support-form submissions should be validated and protected against abuse.
+
+Do not commit Firebase service-account credentials, API secrets, or other sensitive configuration values.
 
 ---
 
-## 🌐 Localization
+## 🧪 Testing & Validation
 
-The UI ships with translation bundles for:
-- 🇬🇧 English (`en.json`)
-- 🇮🇳 Hindi (`hi.json`)
-- 🇮🇳 Marathi (`mr.json`)
+Before using the application beyond demonstration purposes, validate both the software and the machine-learning outputs.
 
-Language is selectable at onboarding (`/language`) and stored as part of the user's profile so the experience is consistent across sessions and devices. Add a new language by dropping a translation JSON into `frontend/src/locales/` and registering it in `frontend/src/i18n.ts`.
+Recommended checks include:
+
+- Frontend production build
+- Backend endpoint tests
+- Model-loading and inference tests
+- Invalid-input and missing-file validation
+- Cluster-count evaluation against manually annotated images
+- Yield prediction comparison against actual harvest records
+- Verification that each frontend feature calls the intended backend
+- Firebase Authentication and Firestore authorization tests
+
+Successful execution of a model does not establish its prediction accuracy. Quantitative evaluation requires a suitable labelled test dataset.
 
 ---
 
-## 🗺 Roadmap
+## 🗺️ Roadmap
 
-- [ ] Replace mocked disease-detection, yield, and fertilizer Cloud Functions with production ML models (parity with the real models already used in the Flask service)
-- [ ] Consolidate the Flask microservice and Cloud Functions into a single deployment target
-- [ ] Add automated tests for both frontend components and backend inference routes
-- [ ] Expand the fertilizer recommendation dataset and disease taxonomy
-- [ ] Add offline/PWA support for low-connectivity vineyard environments
-- [ ] CI/CD pipeline for Firebase Hosting + Functions deployment
+- [ ] Improve cluster detection for touching and overlapping grape bunches.
+- [ ] Evaluate cluster-count accuracy on a larger annotated image dataset.
+- [ ] Validate yield predictions against actual vineyard harvest data.
+- [ ] Integrate production ML inference into the disease-detection Cloud Function.
+- [ ] Replace simulated yield responses in Firebase Cloud Functions with the trained model.
+- [ ] Integrate the fertilizer model into the corresponding production workflow.
+- [ ] Consolidate the Flask service and Firebase Cloud Functions architecture.
+- [ ] Expand automated tests for frontend components and backend endpoints.
+- [ ] Improve monitoring, error handling, and input validation.
+- [ ] Evaluate deployment options for low-connectivity vineyard environments.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome!
+Contributions, bug reports, and suggestions are welcome.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch:
+
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+3. Implement and test your changes.
+4. Commit your work:
+
+   ```bash
+   git commit -m "Describe your changes"
+   ```
+
+5. Push the branch:
+
+   ```bash
+   git push origin feature/your-feature
+   ```
+
+6. Open a Pull Request describing the changes and tests performed.
 
 ---
 
 ## 📄 License
 
-Released under the **MIT License**. See [`LICENSE`](./LICENSE) for details.
+This project is released under the MIT License. See the [`LICENSE`](LICENSE) file for the applicable terms.
 
-Copyright (c) 2025 Anmol Dinesh Pandey
+Copyright © 2025 Anmol Dinesh Pandey.
 
 ---
 
-## 🙋 Support
+## 👤 Author
 
-In-app support/contact page (`/support`) submits directly to a Firestore `support_contacts` collection. For code-level issues, please open a GitHub issue on the repository.
+**Anmol Dinesh Pandey**
+
+GitHub: [@Anmolpandey23](https://github.com/Anmolpandey23)
+
+Repository: [HaritGrapes](https://github.com/Anmolpandey23/HaritGrapes)
+
+---
+
+*HaritGrapes explores the application of computer vision and machine learning to grape cultivation, with the goal of making vineyard monitoring and yield estimation more accessible to growers.*

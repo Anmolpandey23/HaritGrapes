@@ -1,5 +1,7 @@
 import React from 'react';
 import jsPDF from 'jspdf';
+import { FaFilePdf, FaDownload, FaLeaf, FaChartLine } from 'react-icons/fa6';
+import { GiGrapes } from 'react-icons/gi';
 
 interface ReportDownloaderProps {
   user: any;
@@ -96,7 +98,7 @@ const ReportDownloader: React.FC<ReportDownloaderProps> = ({ user }) => {
       y += 14 + 8 * yieldHist.length;
     }
 
-    // REAL AGRICULTURAL TIPS (customizable)
+    // REAL AGRICULTURAL TIPS
     y += 10;
     doc.setFontSize(12);
     doc.text('Actionable Growing Tips:', 14, y);
@@ -113,13 +115,42 @@ const ReportDownloader: React.FC<ReportDownloaderProps> = ({ user }) => {
     doc.save(`HaritGrapes_Field_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.pdf`);
   };
 
+  const disease = getDiseaseInsights();
+
   return (
-    <button
-      onClick={handleDownload}
-      className="px-6 py-2 bg-grape text-white rounded font-bold mt-3 transition hover:bg-primary hover:text-accent"
-    >
-      Download Field Recommendation PDF
-    </button>
+    <div className="rounded-3xl bg-white/90 backdrop-blur-xl border border-gray-200/80 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="max-w-xl">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-2">
+          <FaFilePdf className="text-rose-600" />
+          Comprehensive Vineyard Audit
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+          Export Agronomic Field Dossier
+        </h3>
+        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+          Generates an official PDF report compiling foliage pathology history, recent fertilizer dosages, cluster counts, and predicted harvest tonnage.
+        </p>
+
+        <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-gray-600">
+          <span className="flex items-center gap-1.5 font-medium">
+            <FaLeaf className="text-emerald-600" />
+            Pathology: <strong className="text-gray-900">{disease.mostCommon}</strong>
+          </span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <GiGrapes className="text-purple-600" />
+            Farmer: <strong className="text-gray-900">{user?.displayName || user?.email?.split('@')[0] || 'Grower'}</strong>
+          </span>
+        </div>
+      </div>
+
+      <button
+        onClick={handleDownload}
+        className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#6F2744] to-[#2D6A4F] text-white font-bold text-sm shadow-md hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-2 shrink-0"
+      >
+        <FaDownload />
+        <span>Download Field PDF</span>
+      </button>
+    </div>
   );
 };
 

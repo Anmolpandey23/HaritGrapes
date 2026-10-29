@@ -4,8 +4,23 @@ import Footer from '../components/Footer';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { saveFertilizerResult } from '../firebase/firestoreService';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  GiFertilizerBag, 
+  GiVineLeaf, 
+  GiWaterDrop,
+  GiPlantRoots 
+} from 'react-icons/gi';
+import { 
+  FaFlask, 
+  FaTriangleExclamation, 
+  FaCircleCheck, 
+  FaClock, 
+  FaTrashCan,
+  FaArrowRight,
+  FaShieldVirus
+} from 'react-icons/fa6';
 
-// CHANGE THIS TO MATCH YOUR API PORT!
 const FERTILIZER_API_BASE = import.meta.env.VITE_API_URL || "http://localhost:7000";
 
 const FertilizerPage: React.FC = () => {
@@ -23,11 +38,9 @@ const FertilizerPage: React.FC = () => {
       .then(res => res.json())
       .then(() => {
         setApiStatus('online');
-        console.log('✅ Fertilizer Flask API Connected');
       })
       .catch(() => {
         setApiStatus('offline');
-        console.log('❌ Fertilizer Flask API Offline');
       });
   }, []);
 
@@ -51,7 +64,7 @@ const FertilizerPage: React.FC = () => {
     const already = parsed.find((rec: any) => rec.disease === detectedDisease);
     if (already) {
       setRecommendations(parsed);
-      setMessage('Fertilizer already recommended for this disease.');
+      setMessage('Fertilizer schedule already formulated for this pathology.');
       return;
     }
     const fetchRecommendation = async () => {
@@ -94,86 +107,216 @@ const FertilizerPage: React.FC = () => {
     setMessage('');
   };
 
-  // Card for showing a single recommendation
   const RecCard = ({ rec, isLatest }: { rec: any; isLatest: boolean }) => (
-    <div
-      className={`relative mb-4 p-6 bg-white border-2 border-green-200 rounded-2xl shadow transition duration-300
-        ${isLatest ? 'ring-2 ring-green-400' : ''}
-        hover:shadow-lg hover:scale-[1.025]`}
-      style={{ animation: isLatest ? 'popin 0.3s' : undefined }}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className={`relative rounded-3xl bg-white/95 backdrop-blur-xl border p-6 sm:p-7 shadow-md mb-6 transition-all duration-300 ${
+        isLatest ? 'border-emerald-300 ring-2 ring-emerald-400/20 shadow-lg' : 'border-gray-200'
+      }`}
     >
-      <div className="absolute -top-3 right-3 text-green-600 font-bold">
-        {isLatest && <span className="animate-bounce">✨</span>}
-      </div>
-      <div className="text-xl font-bold text-green-700 mb-2">{rec.fertilizer}</div>
-      <div className="mb-2"><span className="font-semibold text-gray-700">Dosage:</span> {rec.dosage}</div>
-      <div className="mb-2"><span className="font-semibold text-gray-700">Advice:</span> <span className="ml-1 text-green-700">{rec.advice}</span></div>
-      {rec.application && (
-        <div className="mb-2 text-sm bg-blue-50 p-2 rounded border-l-4 border-blue-400">
-          <span className="font-semibold text-blue-800">📋 Application:</span>
-          <span className="ml-1 text-blue-700">{rec.application}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-1.5">
+            <GiFertilizerBag className="text-emerald-600" />
+            Curative Nutrient Formulation
+          </div>
+          <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+            {rec.fertilizer}
+          </h3>
         </div>
-      )}
-      <div className="text-xs text-gray-400 mt-2">
-        {new Date(rec.timestamp).toLocaleString()}
-        {rec.model_output !== undefined && (
-          <span className="ml-2 text-green-600 font-semibold">(AI Output: {rec.model_output})</span>
+
+        {rec.disease && (
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-stone-100 text-gray-700">
+            <FaShieldVirus className="text-rose-500" />
+            Target: {rec.disease}
+          </span>
         )}
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
+        <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1 flex items-center gap-1.5">
+            <GiWaterDrop className="text-emerald-600" />
+            Prescribed Dosage
+          </div>
+          <div className="text-base font-semibold text-emerald-950">
+            {rec.dosage}
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-1 flex items-center gap-1.5">
+            <FaFlask className="text-purple-600" />
+            Biochemical Action
+          </div>
+          <div className="text-sm text-gray-800">
+            {rec.advice}
+          </div>
+        </div>
+      </div>
+
+      {rec.application && (
+        <div className="p-4 rounded-2xl bg-sky-50/80 border border-sky-100 mb-4">
+          <div className="text-xs font-bold uppercase tracking-wider text-sky-800 mb-1 flex items-center gap-1.5">
+            <FaClock className="text-sky-600" />
+            Application Method & Canopy Timing
+          </div>
+          <div className="text-sm text-sky-950 leading-relaxed">
+            {rec.application}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs text-gray-400">
+        <span>Formulated on {new Date(rec.timestamp).toLocaleString()}</span>
+        {rec.model_output !== undefined && (
+          <span className="font-semibold text-emerald-600">Model Output Class: {rec.model_output}</span>
+        )}
+      </div>
+    </motion.div>
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-stone-50 via-emerald-50/20 to-stone-100">
       <Header />
-      <main className="flex-1 max-w-xl mx-auto px-4 py-8 flex flex-col">
-        <h1 className="text-3xl font-bold text-primary mb-4">Fertilizer Recommendation</h1>
-        <div className={`mb-3 text-sm px-3 py-2 rounded font-semibold ${
-          apiStatus === 'online' ? 'bg-green-100 text-green-700' :
-          apiStatus === 'offline' ? 'bg-red-100 text-red-700' :
-          'bg-gray-100 text-gray-700'
-        }`}>
-          {apiStatus === 'online' && 'AI Model Connected'}
-          {apiStatus === 'offline' && '❌ AI Model Offline - Start fertilizer_api.py'}
-          {apiStatus === 'checking' && '⏳ Checking AI Model...'}
+      
+      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full">
+        {/* Header Ribbon */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-2">
+              <GiPlantRoots className="text-emerald-700" />
+              Nutritional Biochemistry
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+              Precision Fertilizer Advisory
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Curated agronomic nutrients and biological fungicides tailored to diagnosed vineyard pathogens.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className={`flex h-3 w-3 relative ${apiStatus === 'online' ? '' : 'opacity-70'}`}>
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${
+                apiStatus === 'online' ? 'bg-emerald-400' : 'bg-rose-400'
+              } opacity-75`}></span>
+              <span className={`relative inline-flex rounded-full h-3 w-3 ${
+                apiStatus === 'online' ? 'bg-emerald-500' : 'bg-rose-500'
+              }`}></span>
+            </span>
+            <span className="text-xs font-medium text-gray-600">
+              {apiStatus === 'online' ? 'Decision Tree Advisory Online' : 'Checking Model Connectivity...'}
+            </span>
+          </div>
         </div>
-        <div className="mb-2 font-semibold text-primary">
-          Latest Detected Disease: <span className="text-grape">{detectedDisease ?? 'None'}</span>
+
+        {/* Pathology Context Banner */}
+        <div className="rounded-3xl bg-white/90 backdrop-blur-xl border border-gray-200/80 p-6 sm:p-7 shadow-sm mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                Active Diagnostic Target
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xl sm:text-2xl font-black text-gray-900">
+                  {detectedDisease ? detectedDisease : 'No Active Disease Diagnosis'}
+                </span>
+                {detectedDisease && (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800">
+                    Symptomatic
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {detectedDisease 
+                  ? 'Our biochemical model correlates this pathogen with specific active foliar solutions.'
+                  : 'Run a leaf pathology scan in Disease Detection to auto-generate personalized treatments.'}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {!detectedDisease && (
+                <button
+                  onClick={() => { window.location.href = '/disease-detection'; }}
+                  className="py-2.5 px-4 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wider hover:bg-emerald-800 transition flex items-center gap-2 shadow"
+                >
+                  <GiVineLeaf />
+                  <span>Scan Foliage First</span>
+                </button>
+              )}
+              {recommendations.length > 0 && (
+                <button
+                  onClick={handleClear}
+                  className="py-2.5 px-4 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold text-xs flex items-center gap-1.5 transition"
+                >
+                  <FaTrashCan className="text-rose-500 text-xs" />
+                  <span>Clear All</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Status / Loading alerts */}
         {message && (
-          <div className="text-green-600 text-md my-2 bg-green-50 p-2 rounded font-bold">{message}</div>
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-2 font-medium">
+            <FaCircleCheck className="text-emerald-600" />
+            <span>{message}</span>
+          </div>
         )}
-        {loading && <div className="text-md text-gray-700 mt-2 animate-pulse">🤖 Getting AI recommendation...</div>}
-        {error && <div className="text-red-600 text-sm my-2 bg-red-50 p-2 rounded">❌ {error}</div>}
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4">Your Recommendations:</h2>
+
+        {loading && (
+          <div className="mb-6 p-6 rounded-3xl bg-white/80 border border-emerald-200 shadow-sm flex items-center justify-center gap-3 text-emerald-800 font-semibold animate-pulse">
+            <div className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+            <span>Evaluating Decision Tree Model for Curative Formulation...</span>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
+            <FaTriangleExclamation />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Recommendations List */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 tracking-tight mb-4 flex items-center gap-2">
+            <GiVineLeaf className="text-primary" />
+            Formulated Recommendations
+          </h2>
+
           {recommendations.length === 0 ? (
-            <div className="text-lg text-gray-600 mb-6">
-              No recommendations yet. Detect a disease!
+            <div className="rounded-3xl bg-white/70 border border-dashed border-gray-300 p-12 flex flex-col items-center justify-center text-center">
+              <GiFertilizerBag className="text-6xl text-gray-300 mb-3 animate-grape-float" />
+              <h3 className="text-lg font-bold text-gray-700">No active fertilizer schedules</h3>
+              <p className="text-xs text-gray-500 max-w-sm mt-1 mb-6">
+                Perform a grape leaf scan in Disease Detection, and the system will automatically dispatch the agronomic cure here.
+              </p>
+              <button
+                onClick={() => { window.location.href = '/disease-detection'; }}
+                className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-[#1B4332] text-white font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-md flex items-center gap-2"
+              >
+                <span>Go to Foliage Diagnostics</span>
+                <FaArrowRight className="text-xs" />
+              </button>
             </div>
           ) : (
-            recommendations
-              .filter(rec => rec.disease === detectedDisease)
-              .map((rec, idx) => (
-                <RecCard key={idx} rec={rec} isLatest={true} />
-              ))
+            <div className="space-y-4">
+              {recommendations
+                .filter(rec => !detectedDisease || rec.disease === detectedDisease)
+                .map((rec, idx) => (
+                  <RecCard key={idx} rec={rec} isLatest={idx === recommendations.length - 1} />
+                ))}
+            </div>
           )}
         </div>
-        <button
-          className="mt-8 bg-red-600 text-white py-2 px-6 rounded font-bold transition-all duration-200 shadow-lg hover:bg-red-700 hover:scale-105"
-          onClick={handleClear}
-        >
-          Clear Recommendations
-        </button>
       </main>
+
       <Footer />
-      <style>{`
-        @keyframes popin {
-          0%{transform:scale(.7);opacity:.2}
-          85%{transform:scale(1.06);}
-          100%{transform:scale(1);opacity:1}
-        }
-      `}</style>
     </div>
   );
 };

@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { motion } from "framer-motion";
-import i18n from "../i18n";
+import { setRealtimeLanguage } from "../utils/realtimeTranslate";
+
+
+
+
 
 const LANGUAGES = [
   { value: "en", label: "English" },
@@ -47,12 +51,12 @@ const ProfileForm: React.FC<{ editing?: boolean }> = ({ editing = false }) => {
         uid: user.uid,
       }, { merge: true }); // Merge for edit/upsert support
 
-      i18n.changeLanguage(language); // Change language instantly
-      localStorage.setItem("app_lang", language);
+      setRealtimeLanguage(language as any);
       navigate("/dashboard");
     }
     setLoading(false);
   };
+
 
   return (
     <motion.div

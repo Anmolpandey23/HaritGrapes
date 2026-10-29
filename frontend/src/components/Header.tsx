@@ -5,19 +5,23 @@ import { auth } from '../firebase/firebaseConfig';
 import { FaBars, FaTimes, FaSignOutAlt } from 'react-icons/fa';
 import { GiGrapes } from 'react-icons/gi';
 import { motion, AnimatePresence } from 'framer-motion';
+import LanguageSelector from './LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 const Header: React.FC = () => {
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Nav links: Disease Detection, Cluster Count, Settings
   const navLinks = [
-    { to: "/disease-detection", label: "Disease Detection" },
-    { to: "/cluster", label: "Cluster Count" },
-    { to: "/settings", label: "Settings" }
+    { to: "/disease-detection", label: t("nav_disease", { defaultValue: "Disease Detection" }) },
+    { to: "/cluster", label: t("nav_cluster", { defaultValue: "Cluster Count" }) },
+    { to: "/settings", label: t("nav_settings", { defaultValue: "Settings" }) }
   ];
+
 
   const handleLogout = async () => {
     try {
@@ -78,13 +82,15 @@ const Header: React.FC = () => {
           })}
         </nav>
 
-        {/* Right: User Badge & Logout (when logged in) OR Sign In & Get Started (when logged out) */}
+        {/* Right: Language Selector + User Badge & Logout OR Sign In & Get Started */}
         <div className="hidden lg:flex items-center gap-3 z-10">
+          <LanguageSelector variant="header" />
+
           {user ? (
             <>
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-900/60 text-emerald-200 border border-emerald-400/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1.5"></span>
-                {user.displayName || user.email?.split('@')[0] || 'Grower'}
+                {user.displayName || user.email?.split('@')[0] || t('grower', { defaultValue: 'Grower' })}
               </span>
               
               <motion.button
@@ -94,7 +100,7 @@ const Header: React.FC = () => {
                 className="px-4 py-2 rounded-xl text-sm font-bold bg-grape hover:bg-grape/80 text-white shadow-md shadow-grape/30 border border-pink-400/20 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <FaSignOutAlt className="text-xs" />
-                <span>Logout</span>
+                <span>{t('nav_logout', { defaultValue: 'Logout' })}</span>
               </motion.button>
             </>
           ) : (
@@ -103,26 +109,29 @@ const Header: React.FC = () => {
                 to="/login"
                 className="px-4 py-2 rounded-xl text-sm font-bold text-emerald-100 hover:text-white hover:bg-white/10 transition"
               >
-                Sign In
+                {t('nav_signin', { defaultValue: 'Sign In' })}
               </Link>
               <Link
                 to="/signup"
                 className="px-4 py-2 rounded-xl text-sm font-bold bg-accent text-emerald-950 hover:bg-yellow-300 shadow-md shadow-accent/20 transition"
               >
-                Get Started
+                {t('nav_getstarted', { defaultValue: 'Get Started' })}
               </Link>
             </div>
           )}
         </div>
 
         {/* Mobile Hamburger */}
-        <button
-          className="lg:hidden p-2 rounded-xl text-white hover:bg-white/10 focus:outline-none transition z-10"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2 z-10">
+          <LanguageSelector variant="header" />
+          <button
+            className="p-2 rounded-xl text-white hover:bg-white/10 focus:outline-none transition cursor-pointer"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Animated Drawer */}
@@ -159,7 +168,7 @@ const Header: React.FC = () => {
                   className="w-full py-3 rounded-xl font-bold bg-grape text-white shadow-md text-center flex items-center justify-center gap-2"
                 >
                   <FaSignOutAlt />
-                  <span>Logout</span>
+                  <span>{t('nav_logout', { defaultValue: 'Logout' })}</span>
                 </button>
               ) : (
                 <div className="flex gap-2">
@@ -168,14 +177,14 @@ const Header: React.FC = () => {
                     onClick={() => setMenuOpen(false)}
                     className="flex-1 py-2.5 text-center rounded-xl bg-white/10 text-white font-bold"
                   >
-                    Sign In
+                    {t('nav_signin', { defaultValue: 'Sign In' })}
                   </Link>
                   <Link
                     to="/signup"
                     onClick={() => setMenuOpen(false)}
                     className="flex-1 py-2.5 text-center rounded-xl bg-accent text-emerald-950 font-bold"
                   >
-                    Get Started
+                    {t('nav_getstarted', { defaultValue: 'Get Started' })}
                   </Link>
                 </div>
               )}

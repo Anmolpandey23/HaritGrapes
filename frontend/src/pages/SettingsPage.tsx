@@ -5,9 +5,11 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { getUserProfile } from '../firebase/firestoreService';
 import { motion } from "framer-motion";
-import { FaUser, FaBell, FaCircleQuestion, FaCircleInfo, FaShieldHalved } from 'react-icons/fa6';
+import { FaUser, FaBell, FaCircleQuestion, FaCircleInfo, FaShieldHalved, FaGlobe } from 'react-icons/fa6';
 import { GiGrapes, GiVineLeaf } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
+import LanguageSelector from '../components/LanguageSelector';
+
 
 const SettingsPage: React.FC = () => {
   const [user] = useAuthState(auth);
@@ -61,23 +63,40 @@ const SettingsPage: React.FC = () => {
             <span className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">
               Account Management
             </span>
-            <div
-              className="group flex items-center gap-4 bg-stone-50/70 hover:bg-emerald-50/50 border border-gray-200/80 hover:border-emerald-300 rounded-2xl p-4 cursor-pointer transition-all duration-200 shadow-sm"
-              onClick={() => navigate("/profile")}
-            >
-              <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg group-hover:scale-105 transition-transform shadow-sm">
-                <FaUser />
+            <div className="space-y-3">
+              <div
+                className="group flex items-center gap-4 bg-stone-50/70 hover:bg-emerald-50/50 border border-gray-200/80 hover:border-emerald-300 rounded-2xl p-4 cursor-pointer transition-all duration-200 shadow-sm"
+                onClick={() => navigate("/profile")}
+              >
+                <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <FaUser />
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-gray-900 group-hover:text-primary transition-colors text-sm">
+                    Grower Profile
+                  </div>
+                  <div className="text-gray-500 text-xs">
+                    Update contact information and name
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="font-bold text-gray-900 group-hover:text-primary transition-colors text-sm">
-                  Grower Profile & Language
+
+              {/* Real-time Language Selector Card */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-50/70 border border-gray-200/80 rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg shadow-sm">
+                    <FaGlobe />
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900 text-sm">Real-time Language / भाषा</div>
+                    <div className="text-gray-500 text-xs">Switch between English (Default), हिन्दी, and मराठी</div>
+                  </div>
                 </div>
-                <div className="text-gray-500 text-xs">
-                  Update contact information, name, and regional dialect
-                </div>
+                <LanguageSelector variant="inline" />
               </div>
             </div>
           </div>
+
 
           {/* App Preferences Section */}
           <div>

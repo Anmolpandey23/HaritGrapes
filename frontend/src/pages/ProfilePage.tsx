@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import i18n from '../i18n';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase/firebaseConfig";
 import { getUserProfile, updateUserProfile } from "../firebase/firestoreService";
 import { motion } from "framer-motion";
 import { FaUserCircle, FaEdit, FaSave } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
+import { setRealtimeLanguage } from "../utils/realtimeTranslate";
 
 const LANGUAGES = [
   { value: "en", label: "English" },
@@ -14,8 +13,8 @@ const LANGUAGES = [
   { value: "mr", label: "मराठी (Marathi)" }
 ];
 
-const glass = "bg-white bg-opacity-90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(54,135,89,0.15)]"
-const gradientBg = "bg-gradient-to-br from-green-100 via-blue-50 to-fuchsia-100"
+const glass = "bg-white bg-opacity-90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(54,135,89,0.15)]";
+const gradientBg = "bg-gradient-to-br from-green-100 via-blue-50 to-fuchsia-100";
 
 const ProfilePage: React.FC = () => {
   const [user] = useAuthState(auth);
@@ -45,16 +44,17 @@ const ProfilePage: React.FC = () => {
         phone,
         language,
         email: user.email,
-        photoURL: user.photoURL   // always keep Google photo as default
+        photoURL: user.photoURL,
       });
-      i18n.changeLanguage(language);
-      localStorage.setItem("app_lang", language);
+      setRealtimeLanguage(language as any);
       setMessage("Profile updated!");
       setTimeout(() => setMessage(""), 800);
       setEditing(false);
       setTimeout(() => navigate("/settings"), 850);
     }
   };
+
+
 
   if (!user) return null;
 

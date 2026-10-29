@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  SUPPORTED_LANGUAGES, 
-  getCurrentLanguage, 
-  setRealtimeLanguage, 
-  SupportedLanguage 
+import {
+  SUPPORTED_LANGUAGES,
+  getCurrentLanguage,
+  setRealtimeLanguage,
+  SupportedLanguage
 } from '../utils/realtimeTranslate';
 import { FaGlobe, FaChevronDown, FaCheck } from 'react-icons/fa6';
 
@@ -71,9 +71,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'header' 
               key={lang.code}
               type="button"
               onClick={() => handleSelect(lang.code)}
-              className={`relative px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                isActive ? 'text-emerald-950 font-black' : 'text-emerald-200 hover:text-white'
-              }`}
+              className={`relative px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${isActive ? 'text-emerald-950 font-black' : 'text-emerald-200 hover:text-white'
+                }`}
             >
               {isActive && (
                 <motion.div
@@ -127,11 +126,10 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'header' 
                   key={lang.code}
                   type="button"
                   onClick={() => handleSelect(lang.code)}
-                  className={`w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                    isSelected
+                  className={`w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${isSelected
                       ? 'bg-gradient-to-r from-accent via-yellow-300 to-accent text-emerald-950 font-black shadow-md'
                       : 'text-emerald-100 hover:bg-white/10 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{lang.flag}</span>

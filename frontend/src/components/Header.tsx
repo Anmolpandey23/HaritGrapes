@@ -64,11 +64,10 @@ const Header: React.FC = () => {
                 key={link.to}
                 to={link.to}
                 translate="no"
-                className={`notranslate relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  isActive
+                className={`notranslate relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive
                     ? 'text-white font-bold'
                     : 'text-emerald-100/90 hover:text-white hover:bg-white/10'
-                }`}
+                  }`}
               >
                 {isActive && (
                   <motion.div
@@ -94,7 +93,7 @@ const Header: React.FC = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1.5"></span>
                 {user.displayName || user.email?.split('@')[0] || t('grower', { defaultValue: 'Grower' })}
               </span>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -152,11 +151,10 @@ const Header: React.FC = () => {
                   key={link.to}
                   to={link.to}
                   translate="no"
-                  className={`notranslate block px-4 py-3 rounded-xl text-base font-semibold transition ${
-                    isActive
+                  className={`notranslate block px-4 py-3 rounded-xl text-base font-semibold transition ${isActive
                       ? 'bg-grape text-white font-bold shadow-md'
                       : 'text-emerald-100 hover:bg-white/10'
-                  }`}
+                    }`}
                   onClick={() => setMenuOpen(false)}
                 >
                   <span className="notranslate" translate="no">{link.label}</span>

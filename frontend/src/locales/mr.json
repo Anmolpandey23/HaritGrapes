@@ -9,8 +9,9 @@
   "welcome": "स्वागत आहे, {{name}}!",
   "grower": "द्राक्ष उत्पादक",
   "nav_dashboard": "डॅशबोर्ड",
-  "nav_disease": "रोग ओळख",
+  "nav_disease": "रोग निदान",
   "nav_cluster": "घड मोजणी",
+
   "nav_yield": "उत्पादन अंदाज",
   "nav_fertilizer": "खत सल्ला",
   "nav_settings": "सेटिंग्ज",

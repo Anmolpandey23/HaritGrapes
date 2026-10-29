@@ -56,14 +56,15 @@ const Header: React.FC = () => {
         </Link>
 
         {/* Center: Navigation Buttons Perfectly Centered in Header */}
-        <nav className="hidden lg:flex items-center gap-2 absolute left-1/2 -translate-x-1/2 z-10">
+        <nav className="hidden lg:flex items-center gap-2 absolute left-1/2 -translate-x-1/2 z-10 notranslate" translate="no">
           {navLinks.map(link => {
             const isActive = location.pathname === link.to;
             return (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                translate="no"
+                className={`notranslate relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   isActive
                     ? 'text-white font-bold'
                     : 'text-emerald-100/90 hover:text-white hover:bg-white/10'
@@ -76,11 +77,12 @@ const Header: React.FC = () => {
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <span>{link.label}</span>
+                <span className="notranslate" translate="no">{link.label}</span>
               </Link>
             );
           })}
         </nav>
+
 
         {/* Right: Language Selector + User Badge & Logout OR Sign In & Get Started */}
         <div className="hidden lg:flex items-center gap-3 z-10">
@@ -149,17 +151,19 @@ const Header: React.FC = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`block px-4 py-3 rounded-xl text-base font-semibold transition ${
+                  translate="no"
+                  className={`notranslate block px-4 py-3 rounded-xl text-base font-semibold transition ${
                     isActive
                       ? 'bg-grape text-white font-bold shadow-md'
                       : 'text-emerald-100 hover:bg-white/10'
                   }`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {link.label}
+                  <span className="notranslate" translate="no">{link.label}</span>
                 </Link>
               );
             })}
+
 
             <div className="pt-3 border-t border-emerald-400/20">
               {user ? (
